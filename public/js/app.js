@@ -162,7 +162,6 @@ class PhotoAlignmentApp {
                     isReference: true
                 });
 
-                alert('写真をライブラリに追加しました！');
                 await this.loadPhotos();
             };
             reader.readAsDataURL(file);
@@ -297,7 +296,6 @@ class PhotoAlignmentApp {
             const photos = await this.storage.getPhotos();
 
             if (photos.length === 0) {
-                alert('参照写真がありません。先に写真を撮影またはアップロードしてください。');
                 return;
             }
 
@@ -305,7 +303,6 @@ class PhotoAlignmentApp {
             this.modal.style.display = 'flex';
         } catch (error) {
             console.error('写真選択エラー:', error);
-            alert('写真の読み込みに失敗しました');
         }
     }
 
@@ -405,7 +402,6 @@ class PhotoAlignmentApp {
                     timestamp: Date.now()
                 });
 
-                alert('写真を保存しました！');
                 this.closeCamera();
                 this.capturedPhotoData = null;
                 await this.loadPhotos();
@@ -429,7 +425,7 @@ class PhotoAlignmentApp {
         try {
             const photo = await this.storage.getPhotoById(photoId);
             if (!photo || !photo.groupId) {
-                alert('この写真は比較できません');
+                console.error('この写真は比較できません');
                 return;
             }
 
@@ -437,7 +433,7 @@ class PhotoAlignmentApp {
             const referencePhoto = groupPhotos.find(p => p.isReference);
 
             if (!referencePhoto) {
-                alert('参照写真が見つかりません');
+                console.error('参照写真が見つかりません');
                 return;
             }
 
@@ -450,7 +446,6 @@ class PhotoAlignmentApp {
             await this.renderCompareView(0.5);
         } catch (error) {
             console.error('比較ビュー表示エラー:', error);
-            alert('比較ビューの表示に失敗しました');
         }
     }
 
@@ -459,13 +454,11 @@ class PhotoAlignmentApp {
 
         if (!this.currentReferencePhoto || !this.currentReferencePhoto.data) {
             console.error('参照写真がありません');
-            alert('参照写真がありません');
             return;
         }
 
         if (!this.capturedPhotoData) {
             console.error('撮影データがありません');
-            alert('撮影データがありません');
             return;
         }
 
@@ -510,7 +503,6 @@ class PhotoAlignmentApp {
 
         } catch (error) {
             console.error('比較ビューの描画エラー:', error);
-            alert('画像の表示に失敗しました: ' + error.message);
         }
     }
 
@@ -553,7 +545,6 @@ class PhotoAlignmentApp {
                 isReference: false
             });
 
-            alert('写真を保存しました！');
             this.closeCompareView();
             await this.loadPhotos();
         } catch (error) {
@@ -627,7 +618,6 @@ class PhotoAlignmentApp {
             await this.loadPhotos();
         } catch (error) {
             console.error('削除エラー:', error);
-            alert('写真の削除に失敗しました');
         }
     }
 
