@@ -123,10 +123,10 @@ class PhotoAlignmentApp {
         });
 
         // 比較ビューの透明度スライダー
-        document.getElementById('compareOpacitySlider').addEventListener('input', (e) => {
+        document.getElementById('compareOpacitySlider').addEventListener('input', async (e) => {
             const opacity = e.target.value / 100;
             document.getElementById('compareOpacityValue').textContent = e.target.value;
-            this.renderCompareView(opacity);
+            await this.renderCompareView(opacity);
         });
 
         // モーダル
@@ -378,13 +378,17 @@ class PhotoAlignmentApp {
 
     async capturePhoto() {
         try {
+            console.log('写真撮影開始');
             this.capturedPhotoData = this.cameraHandler.capturePhoto();
+            console.log('撮影データ取得:', this.capturedPhotoData ? '成功' : '失敗');
 
             // 参照写真がある場合は比較ビューを表示
             if (this.currentReferencePhoto && this.currentReferencePhoto.data) {
+                console.log('参照写真あり、比較ビューへ移動');
                 this.closeCamera();
                 await this.showCompareViewWithCapture();
             } else {
+                console.log('参照写真なし、直接保存');
                 // 参照写真がない場合は直接保存
                 await this.storage.savePhoto(this.capturedPhotoData, {
                     description: '写真',
@@ -407,7 +411,7 @@ class PhotoAlignmentApp {
         this.compareView.style.display = 'flex';
 
         // 比較ビューを描画
-        this.renderCompareView(0.5);
+        await this.renderCompareView(0.5);
     }
 
     async showCompareView(photoId) {
@@ -432,52 +436,93 @@ class PhotoAlignmentApp {
             this.homeView.style.display = 'none';
             this.compareView.style.display = 'flex';
 
-            this.renderCompareView(0.5);
+            await this.renderCompareView(0.5);
         } catch (error) {
             console.error('比較ビュー表示エラー:', error);
             alert('比較ビューの表示に失敗しました');
         }
     }
 
-    renderCompareView(opacity) {
+    async renderCompareView(opacity) {
+        console.log('renderCompareView開始, opacity:', opacity);
+
         if (!this.currentReferencePhoto || !this.currentReferencePhoto.data) {
             console.error('参照写真がありません');
+            alert('参照写真がありません');
             return;
         }
 
         if (!this.capturedPhotoData) {
             console.error('撮影データがありません');
+            alert('撮影データがありません');
             return;
         }
 
         const canvas = this.compareCanvas;
         const ctx = canvas.getContext('2d');
 
-        // 参照画像を読み込み
-        const refImg = new Image();
-        refImg.onload = () => {
-            // キャンバスサイズを設定
+        console.log('キャンバス要素:', canvas);
+        console.log('参照写真データ長:', this.currentReferencePhoto.data.length);
+        console.log('撮影データ長:', this.capturedPhotoData.length);
+
+        try {
+            console.log('画像読み込み開始');
+            // 両方の画像を読み込む
+            const [refImg, capturedImg] = await Promise.all([
+                this.loadImage(this.currentReferencePhoto.data),
+                this.loadImage(this.capturedPhotoData)
+            ]);
+
+            console.log('画像読み込み完了');
+            console.log('参照画像サイズ:', refImg.width, 'x', refImg.height);
+            console.log('撮影画像サイズ:', capturedImg.width, 'x', capturedImg.height);
+
+            // キャンバスサイズを参照画像に合わせる
             canvas.width = refImg.width;
             canvas.height = refImg.height;
 
+            console.log('キャンバスサイズ設定:', canvas.width, 'x', canvas.height);
+
+            // キャンバスをクリア
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             // 参照画像を描画
             ctx.drawImage(refImg, 0, 0);
+            console.log('参照画像描画完了');
 
             // 撮影画像を半透明で重ねる
-            const capturedImg = new Image();
-            capturedImg.onload = () => {
-                ctx.save();
-                ctx.globalAlpha = opacity;
-                ctx.drawImage(capturedImg, 0, 0, canvas.width, canvas.height);
-                ctx.restore();
-            };
-            capturedImg.src = this.capturedPhotoData;
-        };
-        refImg.src = this.currentReferencePhoto.data;
+            ctx.save();
+            ctx.globalAlpha = opacity;
+            ctx.drawImage(capturedImg, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
+            console.log('撮影画像描画完了');
+
+        } catch (error) {
+            console.error('比較ビューの描画エラー:', error);
+            alert('画像の表示に失敗しました: ' + error.message);
+        }
+    }
+
+    loadImage(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+            img.src = src;
+        });
     }
 
     async saveFromCompare() {
         try {
+            // データの存在確認
+            if (!this.capturedPhotoData) {
+                throw new Error('撮影データがありません');
+            }
+
+            if (!this.currentReferencePhoto) {
+                throw new Error('参照写真がありません');
+            }
+
             // グループIDを生成または既存のものを使用
             let groupId = this.currentReferencePhoto.groupId;
 
@@ -502,7 +547,7 @@ class PhotoAlignmentApp {
             await this.loadPhotos();
         } catch (error) {
             console.error('保存エラー:', error);
-            alert('写真の保存に失敗しました');
+            alert('写真の保存に失敗しました: ' + error.message);
         }
     }
 
@@ -527,6 +572,12 @@ class PhotoAlignmentApp {
     }
 
     closeCompareView() {
+        // キャンバスをクリア
+        if (this.compareCanvas) {
+            const ctx = this.compareCanvas.getContext('2d');
+            ctx.clearRect(0, 0, this.compareCanvas.width, this.compareCanvas.height);
+        }
+
         this.compareView.style.display = 'none';
         this.homeView.style.display = 'flex';
         this.capturedPhotoData = null;
