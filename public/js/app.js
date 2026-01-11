@@ -58,7 +58,7 @@ class PhotoAlignmentApp {
         });
 
         document.getElementById('cancelBtn').addEventListener('click', () => {
-            this.closeCamera();
+            this.cancelCamera();
         });
 
         document.getElementById('switchCameraBtn').addEventListener('click', async () => {
@@ -338,6 +338,7 @@ class PhotoAlignmentApp {
 
     async openCamera(referencePhotoId = null) {
         try {
+            // 参照写真情報をクリア/設定
             this.currentReferencePhotoId = referencePhotoId;
 
             // 参照写真を取得
@@ -346,6 +347,9 @@ class PhotoAlignmentApp {
             } else {
                 this.currentReferencePhoto = null;
             }
+
+            // 撮影データもクリア（新しいカメラセッション）
+            this.capturedPhotoData = null;
 
             // ビューを切り替え
             this.homeView.style.display = 'none';
@@ -381,11 +385,17 @@ class PhotoAlignmentApp {
             console.log('写真撮影開始');
             this.capturedPhotoData = this.cameraHandler.capturePhoto();
             console.log('撮影データ取得:', this.capturedPhotoData ? '成功' : '失敗');
+            console.log('参照写真の状態:', this.currentReferencePhoto ? '存在' : 'なし');
 
             // 参照写真がある場合は比較ビューを表示
             if (this.currentReferencePhoto && this.currentReferencePhoto.data) {
                 console.log('参照写真あり、比較ビューへ移動');
+                console.log('参照写真ID:', this.currentReferencePhoto.id);
+                console.log('closeCamera()前の参照写真:', this.currentReferencePhoto ? '存在' : 'なし');
+
                 this.closeCamera();
+
+                console.log('closeCamera()後の参照写真:', this.currentReferencePhoto ? '存在' : 'なし');
                 await this.showCompareViewWithCapture();
             } else {
                 console.log('参照写真なし、直接保存');
@@ -397,6 +407,7 @@ class PhotoAlignmentApp {
 
                 alert('写真を保存しました！');
                 this.closeCamera();
+                this.capturedPhotoData = null;
                 await this.loadPhotos();
             }
         } catch (error) {
@@ -597,8 +608,17 @@ class PhotoAlignmentApp {
 
         this.cameraView.style.display = 'none';
         this.homeView.style.display = 'flex';
+
+        // 注意: 参照写真情報は比較ビューで必要なため、ここではリセットしない
+        // closeCompareView()または新しいカメラ起動時にリセットされる
+    }
+
+    cancelCamera() {
+        // カメラをキャンセルする場合は、すべてをリセット
+        this.closeCamera();
         this.currentReferencePhotoId = null;
         this.currentReferencePhoto = null;
+        this.capturedPhotoData = null;
     }
 
     async deletePhoto(photoId) {
