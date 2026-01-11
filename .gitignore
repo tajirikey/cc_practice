@@ -1,0 +1,35 @@
+# Vercel
+.vercel
+.vercel.json.local
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Temporary files
+tmp/
+temp/
+
+# Node modules
+node_modules/
+
+# User uploaded content
+uploads/
+user-images/

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="同じ構図で写真を撮るサポートアプリ">
+    <title>Photo Alignment - 写真位置合わせアプリ</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ホーム画面 -->
+        <div id="homeView" class="view">
+            <header>
+                <h1>📷 Photo Alignment</h1>
+                <p class="subtitle">同じ構図で写真を撮ろう</p>
+            </header>
+
+            <main>
+                <div class="actions">
+                    <button id="newPhotoBtn" class="btn btn-primary">
+                        <span class="icon">📸</span>
+                        新しい写真を撮る
+                    </button>
+                    <button id="alignPhotoBtn" class="btn btn-secondary">
+                        <span class="icon">🎯</span>
+                        参照写真を選んで撮る
+                    </button>
+                </div>
+
+                <section class="gallery-section">
+                    <h2>保存した写真</h2>
+                    <div id="photoGallery" class="gallery">
+                        <p class="no-photos">まだ写真がありません</p>
+                    </div>
+                </section>
+            </main>
+
+            <footer>
+                <p>HTTPS環境でのみカメラが使用できます</p>
+            </footer>
+        </div>
+
+        <!-- カメラビュー -->
+        <div id="cameraView" class="view" style="display: none;">
+            <div class="camera-container">
+                <video id="videoElement" autoplay playsinline muted></video>
+                <canvas id="overlayCanvas"></canvas>
+            </div>
+
+            <div class="camera-controls">
+                <div id="opacityControl" class="opacity-control" style="display: none;">
+                    <label for="opacitySlider">
+                        透明度: <span id="opacityValue">50</span>%
+                    </label>
+                    <input type="range" id="opacitySlider" min="0" max="100" value="50">
+                </div>
+
+                <div class="button-group">
+                    <button id="cancelBtn" class="btn btn-small">✕ キャンセル</button>
+                    <button id="captureBtn" class="btn btn-capture">📷</button>
+                    <button id="switchCameraBtn" class="btn btn-small">🔄 切替</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 参照写真選択モーダル -->
+        <div id="photoSelectorModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>参照写真を選択</h2>
+                    <button id="closeModalBtn" class="btn-close">✕</button>
+                </div>
+                <div id="photoSelectorGallery" class="modal-gallery">
+                    <p class="no-photos">写真がありません</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage-manager.js"></script>
+    <script src="js/camera-handler.js"></script>
+    <script src="js/overlay-renderer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "photo-alignment-app",
+  "version": "1.0.0",
+  "description": "Photo alignment application with camera overlay support",
+  "scripts": {
+    "dev": "python3 -m http.server 8000 --directory public",
+    "preview": "vercel dev",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel"
+  },
+  "keywords": [
+    "photo",
+    "alignment",
+    "camera",
+    "overlay"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  }
+}
