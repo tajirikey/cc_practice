@@ -78,6 +78,37 @@ class PhotoAlignmentApp {
             }
         });
 
+        // 変形コントロールボタン
+        document.getElementById('zoomInBtn').addEventListener('click', () => {
+            if (this.overlayRenderer) {
+                this.overlayRenderer.adjustScale(0.1);
+            }
+        });
+
+        document.getElementById('zoomOutBtn').addEventListener('click', () => {
+            if (this.overlayRenderer) {
+                this.overlayRenderer.adjustScale(-0.1);
+            }
+        });
+
+        document.getElementById('rotateLeftBtn').addEventListener('click', () => {
+            if (this.overlayRenderer) {
+                this.overlayRenderer.rotate(-15);
+            }
+        });
+
+        document.getElementById('rotateRightBtn').addEventListener('click', () => {
+            if (this.overlayRenderer) {
+                this.overlayRenderer.rotate(15);
+            }
+        });
+
+        document.getElementById('resetTransformBtn').addEventListener('click', () => {
+            if (this.overlayRenderer) {
+                this.overlayRenderer.resetTransform();
+            }
+        });
+
         // 比較ビューのボタン
         document.getElementById('saveCompareBtn').addEventListener('click', () => {
             this.saveFromCompare();
@@ -333,8 +364,10 @@ class PhotoAlignmentApp {
                 this.overlayRenderer.setOpacity(0.5);
                 this.overlayRenderer.startRendering(this.videoElement);
                 document.getElementById('opacityControl').style.display = 'block';
+                document.getElementById('transformControls').style.display = 'block';
             } else {
                 document.getElementById('opacityControl').style.display = 'none';
+                document.getElementById('transformControls').style.display = 'none';
             }
         } catch (error) {
             console.error('カメラ起動エラー:', error);
@@ -348,7 +381,7 @@ class PhotoAlignmentApp {
             this.capturedPhotoData = this.cameraHandler.capturePhoto();
 
             // 参照写真がある場合は比較ビューを表示
-            if (this.currentReferencePhoto) {
+            if (this.currentReferencePhoto && this.currentReferencePhoto.data) {
                 this.closeCamera();
                 await this.showCompareViewWithCapture();
             } else {
@@ -407,6 +440,16 @@ class PhotoAlignmentApp {
     }
 
     renderCompareView(opacity) {
+        if (!this.currentReferencePhoto || !this.currentReferencePhoto.data) {
+            console.error('参照写真がありません');
+            return;
+        }
+
+        if (!this.capturedPhotoData) {
+            console.error('撮影データがありません');
+            return;
+        }
+
         const canvas = this.compareCanvas;
         const ctx = canvas.getContext('2d');
 
