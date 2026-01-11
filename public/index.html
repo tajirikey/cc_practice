@@ -26,6 +26,11 @@
                         <span class="icon">🎯</span>
                         参照写真を選んで撮る
                     </button>
+                    <button id="uploadPhotoBtn" class="btn btn-secondary">
+                        <span class="icon">📁</span>
+                        ライブラリから追加
+                    </button>
+                    <input type="file" id="photoFileInput" accept="image/*" style="display: none;">
                 </div>
 
                 <section class="gallery-section">
@@ -75,6 +80,42 @@
                     <p class="no-photos">写真がありません</p>
                 </div>
             </div>
+        </div>
+
+        <!-- 比較ビュー -->
+        <div id="compareView" class="view" style="display: none;">
+            <header>
+                <h1>📊 写真を比較</h1>
+                <p class="subtitle">スライダーで透明度を調整</p>
+            </header>
+
+            <main>
+                <div class="compare-container">
+                    <canvas id="compareCanvas"></canvas>
+                </div>
+
+                <div class="compare-controls">
+                    <label for="compareOpacitySlider">
+                        新しい写真の透明度: <span id="compareOpacityValue">50</span>%
+                    </label>
+                    <input type="range" id="compareOpacitySlider" min="0" max="100" value="50">
+                </div>
+
+                <div class="actions">
+                    <button id="saveCompareBtn" class="btn btn-primary">
+                        <span class="icon">💾</span>
+                        保存して戻る
+                    </button>
+                    <button id="retakeBtn" class="btn btn-secondary">
+                        <span class="icon">🔄</span>
+                        撮り直す
+                    </button>
+                    <button id="closeCompareBtn" class="btn btn-secondary">
+                        <span class="icon">✕</span>
+                        破棄して戻る
+                    </button>
+                </div>
+            </main>
         </div>
     </div>
 

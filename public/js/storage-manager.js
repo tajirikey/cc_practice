@@ -126,4 +126,48 @@ class StorageManager {
             };
         });
     }
+
+    async getPhotosByGroupId(groupId) {
+        if (!this.db) {
+            await this.initDB();
+        }
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([this.storeName], 'readonly');
+            const objectStore = transaction.objectStore(this.storeName);
+            const index = objectStore.index('groupId');
+            const request = index.getAll(groupId);
+
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+
+            request.onerror = () => {
+                reject(request.error);
+            };
+        });
+    }
+
+    async getPhotoGroups() {
+        const photos = await this.getPhotos();
+        const groups = new Map();
+        const ungrouped = [];
+
+        photos.forEach(photo => {
+            if (photo.groupId) {
+                if (!groups.has(photo.groupId)) {
+                    groups.set(photo.groupId, []);
+                }
+                groups.get(photo.groupId).push(photo);
+            } else {
+                ungrouped.push(photo);
+            }
+        });
+
+        return { groups, ungrouped };
+    }
+
+    generateGroupId() {
+        return 'group_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
 }
